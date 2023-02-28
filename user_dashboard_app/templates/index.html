@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <title>Dashboard</title>
+    <style>
+        .bg-primary {
+            background-color: #dddddd !important;
+        }
+
+        button {
+            font-size: 10px !important;
+        }
+
+        #user-card {
+            cursor: pointer;
+        }
+
+        #user-card:hover {
+            background-color: #c7e6fd !important;
+        }
+
+        .active-user {
+            background-color: #c7e6fd !important;
+        }
+    </style>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        get_user_details() ;
+        // console.log("Write Your Script Here")        ;
+      });
+      var host_name = "http://127.0.0.1:8000";
+      function get_user_details() 
+    {
+        $("#user_card").html("");
+        $.get(host_name+"/users/",function(data, status){            
+            var html = "";
+            for(var i=0;i<data.length;i++)
+            {
+                html+="<div class=\"bg-light \" id=\"user_id_"+data[i]["id"]+"\" onclick=\"fill_user_post("+data[i]["id"]+",'"+data[i]["user_name"]+"');\" >\n" +
+"                                <div class=\"d-flex align-items-center p-2 mb-1\">\n" +
+"                                    <div class=\"flex-shrink-0\">\n" +
+"                                        <i class=\"fa fa-user-circle-o fa-3x text-info\" aria-hidden=\"true\"></i>\n" +
+"                                    </div>\n" +
+"                                    <div class=\"flex-grow-1 ms-3\">\n" +
+"                                        <h6 class=\"text-primary\">"+data[i]["user_name"]+"</h6>\n" +
+"                                        "+data[i]["address"]+"\n" +
+"                                    </div>\n" +
+"                                    <div class=\"p-2 bd-highlight\">\n" +
+"                                        <div class=\"d-flex justify-content-evenly\">\n" +
+"                                            <button class=\"btn btn-secondary btn-sm me-1\" onclick=\"dispaly_user_post("+data[i]["id"]+",'"+data[i]["user_name"]+"')\" \n" +
+"                                                ><i class=\"fa fa-comment-o\"\n" +
+"                                                    aria-hidden=\"true\"></i> Post</button>\n" +
+"                                            <button type=\"button\" onclick=\"display_user_update_model("+data[i]["id"]+",'"+data[i]["user_name"]+"','"+data[i]["address"]+"');\" class=\"btn btn-primary btn-sm me-1\" \n" +
+"                                                ><i class=\"fa fa-pencil\"\n" +
+"                                                    aria-hidden=\"true\"></i> Update</button>\n" +
+"                                            <button class=\"btn btn-danger btn-sm\" \n" +
+"                                                onclick=\"delete_user_display("+data[i]["id"]+");\" ><i class=\"fa fa-trash\" aria-hidden=\"true\"></i>\n" +
+"                                                Delete</button>\n" +
+"                                        </div>\n" +
+"                                    </div>\n" +
+"                                </div>\n" +
+"                            </div>";
+            }      
+            $("#user_card").html(html);
+            if(data.length > 0)
+            {
+                var user_id = data[0]["id"];
+                fill_user_post(data[0]["id"],data[0]["user_name"]);
+                $("#user_id_"+user_id).addClass("active-user");
+            }
+            // fill_user_post(user_id,user_name)
+
+        });
+    }
+
+    function display_user_update_model(id,user_name,address)
+    {
+        $("#update-user").modal('show');
+        $("#update_user_name").val(user_name);
+        $("#update_user_address").val(address);
+        $("#update_user_id").val(id);
+    }
+
+    
+
+    function fill_user_post(user_id,user_name)
+    {        
+        $("#user_card div").removeClass("active-user");
+        $.get(host_name+"/users/"+user_id+"/posts/",function(data, status){            
+            // console.log(data)    
+            var html = "";
+            for(var i=0;i<data.length;i++)
+            {
+                var user_post_id = data[i]["id"];
+                var user_id = data[i]["usr_fk"];
+                
+                html+="<div class=\"bg-light mb-1\">\n" +
+"                                <div class=\"d-flex bd-highlight\">\n" +
+"                                    <div class=\"p-3 flex-grow-1 bd-highlight\">\n" +
+"                                        <blockquote class=\"blockquote mb-0\" style=\"font-size: 15px;\">\n" +
+"                                            <p>"+data[i]["message"]+"</p>\n" +
+"                                            <footer class=\"blockquote-footer\">"+data[i]["title"]+" <cite title=\"Source Title\"\n" +
+"                                                    class=\"text-primary\">by "+user_name+"</cite></footer>\n" +
+"                                        </blockquote>\n" +
+"                                    </div>\n" +
+"                                    <div class=\"p-2 bd-highlight d-flex align-items-center justify-content-center\">\n" +
+"                                        <div class=\"d-flex justify-content-evenly\">\n" +
+"                                            <button class=\"btn btn-primary btn-sm me-1\" \n" +
+// "                                                data-bs-target=\"#update-post\" data-bs-placement=\"top\"\n" +
+"                                               onclick=\"display_user_post("+user_id+","+user_post_id+",'"+user_name+"');\" title=\"Update the Post\"><i class=\"fa fa-pencil\"\n" +
+"                                                    aria-hidden=\"true\"></i></button>\n" +
+"                                            <button class=\"btn btn-danger btn-sm\" onclick=\"delete_user_post_display("+user_id+","+user_post_id+");\" \n" +
+"                                                \n" +
+"                                                title=\"Delete the Post\"><i class=\"fa fa-trash\" aria-hidden=\"true\"></i>\n" +
+"                                            </button>\n" +
+"                                        </div>\n" +
+"                                    </div>\n" +
+"                                </div>\n" +
+"    \n" +
+"                            </div>";
+            }
+            $("#user_post_div").html(html);
+            $("#user_id_"+user_id).addClass("active-user");
+        });
+        
+        
+    }
+
+    function save_user_data()
+    {
+        var user_name = $("#user_name").val();
+        var user_address = $("#user_address").val();
+        $.post(host_name+"/users/",{user_name: user_name,address:user_address}, function(data, status)
+        {
+            if(data["status"] == "success")
+            {
+                $("#user_msg").html("<div class=\"alert alert-success alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Success</strong> User Details Added Successfully...!\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            get_user_details() ;
+                // ("User Details updated successfully!");
+            }
+            else{
+                $("#user_msg").html("<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>warning</strong> Could not add user Details Error is "+data+"\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            }
+        });
+    }
+
+    function update_user_details()
+    {                
+        var user_name = $("#update_user_name").val();
+        var user_address = $("#update_user_address").val();
+        var update_user_id = $("#update_user_id").val();
+        $.ajax({url: host_name+"/users/"+update_user_id,type:"PUT",data:{user_name: user_name,address:user_address}, success: function(result){
+            if(result["status"] == "success")
+            {
+                $("#user_msg").html("<div class=\"alert alert-success alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Success</strong> User Details Updated Successfully...!\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            get_user_details() ;
+                // ("User Details updated successfully!");
+            }
+            else{
+                $("#user_msg").html("<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>warning</strong> Could not Update user Details Error is "+result+"\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            }
+        }});
+    }
+    function delete_user_display(id)
+    {
+        $("#delete-user").modal('show');
+        $("#delete_user_id").val(id);
+        // $("#delete_user_id").val(id);
+    }
+    function delete_user(id)
+    {
+        var user_id = $("#delete_user_id").val();
+        $.ajax({url: host_name+"/users/"+user_id,type:"DELETE", success: function(result){
+            if(result["status"] == "success")
+            {
+                get_user_details() ;
+                $('#delete-user').modal('hide');
+            }
+            else
+            {
+                $("#delete_user_model").html("<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>warning</strong> Could not Delete User Details \n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            }
+        }});
+    }
+
+    function dispaly_user_post(user_id,user_name)
+    {
+        $("#add-post").modal('show');
+        $("#user_post_title").val("");
+        $("#user_post_message").val("");
+        $("#user_post_id").val(user_id);
+        $("#user_post_name").val(user_name);
+        $("#user_post_msg").html("");
+    }
+
+    function save_user_post()
+    {
+        var user_id = $("#user_post_id").val();
+        var user_name = $("#user_post_name").val();
+        var user_title = $("#user_post_title").val();
+        var user_message = $("#user_post_message").val();
+        $.post(host_name+"/users/"+user_id+"/posts/",{title: user_title,message:user_message,"usr_fk":user_id}, function(data, status)
+        {
+            if(data["status"] == "success")
+            {
+                
+                $("#user_post_msg").html("<div class=\"alert alert-success alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Success</strong> User Post added Successfully...!\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            fill_user_post(user_id,user_name);
+            }
+            else{
+                $("#user_post_msg").html("<div class=\"alert alert-warning alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Warning</strong> Could not add User Post !\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            }
+        });
+    }
+
+    function display_user_post(user_id,user_post_id,user_name)
+    {
+        $("#update_usr_post_msg").html("");
+        $("#update-post").modal("show");
+        $.get(host_name+"/users/"+user_id+"/posts/"+user_post_id,function(data, status){            
+            
+            
+            $("#update_user_title").val(data[0]["title"]);
+            $("#update_user_message").val(data[0]["message"]);
+            $("#update_post_user_id").val(user_id);
+            $("#update_post_post_id").val(user_post_id);            
+            $("#user_name_post_id").val(user_name); 
+
+        });
+
+    }
+
+    function update_user_post()
+    {
+        var user_id = $("#update_post_user_id").val();
+        var post_id = $("#update_post_post_id").val();
+        var post_title = $("#update_user_title").val();
+        var post_message = $("#update_user_message").val();
+        var user_name = $("#user_name_post_id").val();
+        $.ajax({url: host_name+"/users/"+user_id+"/posts/"+post_id,type:"PUT",data:{title: post_title,message:post_message,"usr_fk":user_id}, success: function(result){
+            if(result["status"] == "success")
+            {
+                
+                $("#update_usr_post_msg").html("<div class=\"alert alert-success alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Success</strong> User Post Updated Successfully...!\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            fill_user_post(user_id,user_name);
+            }
+            else{
+                $("#update_usr_post_msg").html("<div class=\"alert alert-warning alert-dismissible fade show\" role=\"alert\">\n" +
+"                        <strong>Warning</strong> Could not add User Post !\n" +
+"                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n" +
+"                    </div>");
+            }
+        }});
+    }
+
+    function delete_user_post_display(user_id,post_id)
+    {
+        $("#delete-post").modal('show');
+        $("#delete_post_post_id").val(post_id);
+        $("#delete_post_user_id").val(user_id);
+    }
+    function delete_user_post()
+    {
+        var user_id = $("#delete_post_user_id").val();
+        var post_id = $("#delete_post_post_id").val();
+        
+        $.ajax({url: host_name+"/users/"+user_id+"/posts/"+post_id,type:"DELETE", success: function(result){
+            if(result["status"] == "success")
+            {                
+                $('#delete-post').modal('hide');
+            }
+            else
+            {
+
+            }
+        }});
+    }
+
+    function display_add_user()
+    {
+        $("#add-user").modal("show");
+        $("#user_msg").html("");
+        $("#user_name").val("");
+        $("#user_address").val("");
+    }
+
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <section class="m-5 h-100 bg-primary">
+            <div class="row g-2 mt-5">
+                <div class="col-6">
+                    <div class="p-3  bg-customise">
+                        <div class="d-flex bd-highlight mb-3">
+                            <div class="me-auto p-2 bd-highlight">
+                                <h5 class="text-secondary">User List</h5>
+                            </div>
+                            <div class="p-2 bd-highlight">
+                                <button class="btn btn-success btn-sm" onclick="display_add_user();"><i class="fa fa-plus" aria-hidden="true"></i> Add
+                                    Users</button>
+                            </div>
+                        </div>
+
+
+                        <div id="user_card">
+                            
+                        </div>
+                        
+
+
+
+                    </div>
+
+                </div>
+                <div class="col-6">
+
+                    <div class="p-3  bg-customise-second">
+                        <div class="d-flex bd-highlight mb-3">
+                            <div class="me-auto p-2 bd-highlight">
+                                <h5 class="text-secondary">List of Posts</h5>
+                            </div>
+                            <!-- <div class="p-2 bd-highlight">
+                                <button class="btn btn-secondary btn-sm" ><i class="fa fa-refresh" aria-hidden="true"></i>
+                                    Refresh</button>
+                            </div> -->
+
+                        </div>
+                        <div id="user_post_div">
+                            
+                        </div>
+                        
+
+                        
+
+                    </div>
+
+
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+
+
+
+
+    <!--Start Modal-->
+
+    <!--Start Add User-->
+    <div class="modal fade" id="add-user" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Add User Details</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="user_name" class="col-form-label">Username</label>
+                            <input type="text" class="form-control" id="user_name" placeholder="Username" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_address" class="col-form-label">Address</label>
+                            <input type="text" class="form-control" id="user_address" placeholder="Address" />
+                        </div>
+                    </form>
+                    <div id="user_msg"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="save_user_data();" class="btn btn-primary btn-sm">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Add User-->
+
+    <!--Start Update User-->
+    <div class="modal fade" id="update-user" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Update User Details</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="update_user_name" class="col-form-label">Username</label>
+                            <input type="text" class="form-control" id="update_user_name" placeholder="Username" />
+                            <input type="hidden"  id="update_user_id"  />
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_user_address" class="col-form-label">Address</label>
+                            <input type="text" class="form-control" id="update_user_address" placeholder="Address" />
+                        </div>
+                    </form>
+                    <div>
+
+                    </div>
+                    <!-- <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success</strong> User Details Updated Successfully...!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="update_user_details();" class="btn btn-primary btn-sm">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Update User-->
+
+
+    <!--Start Post-->
+    <div class="modal fade" id="add-post" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Post Your Comments</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="user_post_title" class="col-form-label">Title:</label>
+                            <input type="text" class="form-control" id="user_post_title" placeholder="Title">
+                            <input type="hidden"  id="user_post_id" >
+                            <input type="hidden"  id="user_name_post_id" >
+                            <input type="hidden"  id="user_post_name" >
+                            
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_post_messageuser_post_message" class="col-form-label">Message:</label>
+                            <textarea class="form-control" id="user_post_message" placeholder="comment here..."></textarea>
+                        </div>
+                    </form>
+                    <div id="user_post_msg"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="save_user_post();" class="btn btn-primary btn-sm">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Post-->
+
+    <!--Start Update Post-->
+    <div class="modal fade" id="update-post" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Update Your Comments</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="update_user_title" class="col-form-label">Title:</label>
+                            <input type="text" class="form-control" id="update_user_title" placeholder="Title">
+                            <input type="hidden"  id="update_post_user_id" >
+                            <input type="hidden"  id="update_post_post_id" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_user_message" class="col-form-label">Message:</label>
+                            <textarea class="form-control" id="update_user_message" placeholder="comment here..."></textarea>
+                        </div>
+                    </form>
+                    <div id="update_usr_post_msg"></div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="update_user_post();" class="btn btn-primary btn-sm">Update Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End update Post-->
+
+    <!--Start Delete User-->
+    <div class="modal fade" id="delete-user" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Delete User</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="delete_user_model" >
+                    <input type="hidden" id="delete_user_id" value="-1"/>
+                    Do you want to delete the user details permanently?
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="delete_user();" class="btn btn-danger btn-sm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Delete User-->
+
+    <!--Start Delete User-->
+    <div class="modal fade" id="delete-post" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-primary" id="staticBackdropLabel">Delete Post</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="delete_post_post_id" />                    
+                    <input type="hidden" id="delete_post_user_id" />   
+                    Do you want to delete the post permanently?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="delete_user_post();" class="btn btn-danger btn-sm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Delete User-->
+    <!--End Modal-->
+
+</body>
+
+</html>
