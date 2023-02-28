@@ -1,5 +1,7 @@
 # Admin-dashboard
 Admin Dashboard to manage posts created by users.
+
+output:
 ![image](https://user-images.githubusercontent.com/117077226/221845826-5f414a61-a18c-411b-aaf4-a84afb70f4b4.png)
 ![image](https://user-images.githubusercontent.com/117077226/221846189-3a2ea5ad-4a15-44d5-85d6-e0fcd4dd5078.png)
 ![image](https://user-images.githubusercontent.com/117077226/221846307-81566285-2784-48ae-a2d3-41f4ba5d4758.png)
