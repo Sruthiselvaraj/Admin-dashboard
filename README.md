@@ -1,4 +1,4 @@
-# Admin-dashboard
+# PostMaster
 Admin Dashboard to manage posts created by users.
 
 output:
